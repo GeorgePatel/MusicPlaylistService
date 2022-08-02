@@ -1,0 +1,111 @@
+'PARTICIPANTS: use this file for creating the class diagram in mastery task 01
+
+@startuml
+
+title Activity Classes
+
+interface RequestHandler {}
+
+class AddSongToPlaylistActivity implements RequestHandler {
+    -log: Logger
+    -playlistDao: PlaylistDao
+    -albumTrackDao: AlbumTrackDao
+    +handleRequest(AddSongToPlaylistRequest, Context) : AddSongToPlaylistResult
+}
+
+class CreatePlaylistActivity implements RequestHandle {
+    -log: Logger
+    -playlistDao: PlaylistDao
+    +handleRequest(CreatePlaylistRequest, Context) : CreatePlaylistResult
+}
+
+class GetPlaylistActivity implements RequestHandle {
+    -log: Logger
+    -playlistDao: PlaylistDao
+    +handleRequest(GetPlaylistRequest, Context) : GetPlaylistResult
+}
+
+class GetPlaylistSongsActivity implements RequestHandle {
+    -log: Logger
+    -playlistDao: PlaylistDao
+    +handleRequest(GetPlaylistSongsRequest, Context) : GetPlaylistSongsResult
+}
+
+class UpdatePlaylistActivity implements RequestHandle {
+    -log: Logger
+    -playlistDao: PlaylistDao
+    +handleRequest(UpdatePlaylistRequest, Context) : UpdatePlaylistResult
+}
+class PlaylistDao {
+    -dynamoDbMapper: DynamoDBMapper
+    +getPlaylist(String) : Playlist
+}
+
+class AlbumTrackDao {
+    -dynamoDbMapper: DynamoDBMapper
+}
+
+AddSongToPlaylistActivity *-- PlaylistDao
+AddSongToPlaylistActivity *-- AlbumTrackDao
+CreatePlaylistActivity *-- PlaylistDao
+GetPlaylistActivity *-- PlaylistDao
+GetPlaylistSongsActivity *-- PlaylistDao
+UpdatePlaylistActivity *-- PlaylistDao
+
+newpage
+
+title Exceptions
+
+class RuntimeException {
+    ~ {static}serialVersionUID: long
+}
+
+class InvalidAttributeException {
+    - {static}serialVersionUID: long
+}
+
+class InvalidAttributeValueException {
+    - {static}serialVersionUID: long
+}
+
+class InvalidAttributeChangeException {
+    - {static}serialVersionUID: long
+}
+
+class AlbumTrackNotFoundException {
+    - {static}serialVersionUID: long
+}
+
+class PlaylistNotFoundException {
+    - {static}serialVersionUID: long
+}
+
+RuntimeException <|-- InvalidAttributeException
+RuntimeException <|-- AlbumTrackNotFoundException
+RuntimeException <|-- PlaylistNotFoundException
+InvalidAttributeException <|-- InvalidAttributeChangeException
+InvalidAttributeException <|-- InvalidAttributeValueException
+
+
+newpage
+
+title DynamoDB model classes
+
+class AlbumTrack {
+    -@DynamoDBHashKey asin: String
+    -@DynamoDBRangeKey trackNumber: Integer
+    -albumName: String
+    -songTitle: String
+}
+
+class Playlist {
+    -@DynamoDBHashKey id: String
+    -name: String
+    -customerId: String
+    -songCount: Integer
+    -tags: Set<String>
+    -songList: List<AlbumTrack>
+}
+
+Playlist o-- AlbumTrack
+@enduml
